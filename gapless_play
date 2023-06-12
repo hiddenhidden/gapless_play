@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+
+import pygame
+import time
+import sys
+import os
+import glob
+
+def play_audio(filename, loops):
+    pygame.mixer.init()
+    pygame.mixer.music.load(filename)
+
+    total_length = pygame.mixer.Sound(filename).get_length()
+    loop_counter = 1
+
+    while loop_counter <= loops:
+        start_time = time.time()
+        pygame.mixer.music.play()
+
+        while pygame.mixer.music.get_busy():
+            elapsed_time = time.time() - start_time
+            progress = elapsed_time / total_length
+            progress_bar = '=' * int(50 * progress) + ' ' * (50 - int(50 * progress))
+            print("\r[{}] ({:.2f} / {:.2f} seconds)".format(progress_bar, elapsed_time, total_length), end='')
+            sys.stdout.flush()
+
+        print("\n\nEnd of playback, looping...")
+
+        loop_counter += 1
+
+def main():
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    audio_file = next(glob.iglob(os.path.join(script_dir, "*.wav")), next(glob.iglob(os.path.join(script_dir, "*.mp3")), None))
+    if audio_file is None:
+        print("No .wav or .mp3 file found in the script's directory.")
+        return
+
+    loops = 5  # Set the desired number of loops here
+
+    play_audio(audio_file, loops)
+
+if __name__ == "__main__":
+    main()
